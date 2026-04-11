@@ -1,0 +1,278 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://adp-manifest.dev/schema/v0.json",
+  "title": "ADP Proposal",
+  "description": "A structured proposal for the Agent Deliberation Protocol (ADP). The atomic unit of participation in a deliberation.",
+  "type": "object",
+  "required": [
+    "proposal_id",
+    "deliberation_id",
+    "agent_id",
+    "timestamp",
+    "action",
+    "vote",
+    "confidence",
+    "domain_claim",
+    "reversibility_tier",
+    "blast_radius",
+    "justification",
+    "stake",
+    "dissent_conditions",
+    "revisions"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "JSON Schema reference"
+    },
+    "proposal_id": {
+      "type": "string",
+      "description": "Unique identifier for this proposal",
+      "pattern": "^prp_"
+    },
+    "deliberation_id": {
+      "type": "string",
+      "description": "Identifier for the deliberation this proposal belongs to",
+      "pattern": "^dlb_"
+    },
+    "agent_id": {
+      "type": "string",
+      "description": "Decentralized identifier of the submitting agent",
+      "pattern": "^did:adp:"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of proposal submission"
+    },
+    "action": {
+      "type": "object",
+      "description": "The action being proposed",
+      "required": ["kind", "target"],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "description": "Action type identifier"
+        },
+        "target": {
+          "type": "string",
+          "description": "Target resource for the action"
+        },
+        "parameters": {
+          "type": "object",
+          "description": "Action-specific parameters",
+          "additionalProperties": { "type": "string" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "vote": {
+      "type": "string",
+      "enum": ["approve", "reject", "abstain"],
+      "description": "The agent's vote on the proposed action"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Self-assessed probability the action is correct. Compared to outcomes by calibration scoring."
+    },
+    "domain_claim": {
+      "type": "object",
+      "description": "Domain authority claim referencing mcp-manifest",
+      "required": ["domain", "authority_source"],
+      "properties": {
+        "domain": {
+          "type": "string",
+          "description": "Decision domain (e.g. code.correctness, security.policy)"
+        },
+        "authority_source": {
+          "type": "string",
+          "description": "Reference to mcp-manifest authority declaration"
+        }
+      },
+      "additionalProperties": false
+    },
+    "reversibility_tier": {
+      "type": "string",
+      "enum": ["reversible", "partially_reversible", "irreversible"],
+      "description": "Contextual reversibility classification. Drives convergence thresholds."
+    },
+    "blast_radius": {
+      "type": "object",
+      "description": "Structured impact assessment for programmatic comparison",
+      "required": ["scope", "estimated_users_affected", "rollback_cost_seconds"],
+      "properties": {
+        "scope": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Affected services and consumers"
+        },
+        "estimated_users_affected": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Estimated number of users impacted"
+        },
+        "rollback_cost_seconds": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Estimated time to rollback in seconds"
+        }
+      },
+      "additionalProperties": false
+    },
+    "justification": {
+      "type": "object",
+      "description": "Reasoning and evidence for the vote",
+      "required": ["summary", "evidence_refs"],
+      "properties": {
+        "summary": {
+          "type": "string",
+          "description": "Human-readable justification"
+        },
+        "evidence_refs": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "URIs pointing to supporting evidence"
+        }
+      },
+      "additionalProperties": false
+    },
+    "stake": {
+      "type": "object",
+      "description": "Self-declared stake in the outcome",
+      "required": ["declared_by", "magnitude", "calibration_at_stake"],
+      "properties": {
+        "declared_by": {
+          "type": "string",
+          "description": "Who declared the stake (self or external reference)"
+        },
+        "magnitude": {
+          "type": "string",
+          "enum": ["low", "medium", "high"],
+          "description": "Stake level. Maps to weight factor: high=1.0, medium=0.85, low=0.50"
+        },
+        "calibration_at_stake": {
+          "type": "boolean",
+          "description": "Whether this proposal will be scored against outcomes for calibration"
+        }
+      },
+      "additionalProperties": false
+    },
+    "dissent_conditions": {
+      "type": "array",
+      "description": "Pre-declared conditions that would change this agent's vote. Append-only.",
+      "items": {
+        "$ref": "#/$defs/dissent_condition"
+      }
+    },
+    "revisions": {
+      "type": "array",
+      "description": "Vote revisions recorded during belief-update rounds. Append-only.",
+      "items": {
+        "$ref": "#/$defs/vote_revision"
+      }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "dissent_condition": {
+      "type": "object",
+      "required": ["id", "condition", "status", "amendments"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier within the proposal",
+          "pattern": "^dc_"
+        },
+        "condition": {
+          "type": "string",
+          "description": "The original condition text. Never overwritten."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["active", "falsified", "amended", "withdrawn"],
+          "description": "Lifecycle status of this condition"
+        },
+        "amendments": {
+          "type": "array",
+          "description": "Append-only log of amendments to this condition",
+          "items": {
+            "$ref": "#/$defs/amendment"
+          }
+        },
+        "tested_in_round": {
+          "type": ["integer", "null"],
+          "description": "Round in which this condition was tested, or null"
+        },
+        "tested_by": {
+          "type": ["string", "null"],
+          "description": "Agent ID that tested this condition, or null"
+        }
+      },
+      "additionalProperties": false
+    },
+    "amendment": {
+      "type": "object",
+      "required": ["round", "new_condition", "reason", "triggered_by"],
+      "properties": {
+        "round": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Belief-update round in which this amendment was made"
+        },
+        "new_condition": {
+          "type": "string",
+          "description": "The revised condition text"
+        },
+        "reason": {
+          "type": "string",
+          "description": "Why the condition was amended"
+        },
+        "triggered_by": {
+          "type": "string",
+          "description": "Evidence or agent reference that triggered the amendment"
+        }
+      },
+      "additionalProperties": false
+    },
+    "vote_revision": {
+      "type": "object",
+      "required": ["round", "prior_vote", "new_vote", "reason", "timestamp"],
+      "properties": {
+        "round": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Belief-update round in which this revision occurred"
+        },
+        "prior_vote": {
+          "type": "string",
+          "enum": ["approve", "reject", "abstain"]
+        },
+        "new_vote": {
+          "type": "string",
+          "enum": ["approve", "reject", "abstain"]
+        },
+        "prior_confidence": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "maximum": 1
+        },
+        "new_confidence": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "maximum": 1
+        },
+        "reason": {
+          "type": "string",
+          "description": "Why the vote was revised"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
