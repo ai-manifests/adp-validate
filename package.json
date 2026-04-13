@@ -30,7 +30,7 @@
   "homepage": "https://adp-manifest.dev",
   "repository": {
     "type": "git",
-    "url": "https://git.marketally.com/logikonline/adp-validate"
+    "url": "https://git.marketally.com/ai-manifests/adp-validate"
   },
   "dependencies": {
     "ajv": "^8.17.0",
