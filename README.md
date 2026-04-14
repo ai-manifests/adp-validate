@@ -140,3 +140,7 @@ const audit = auditTally(proposals, weights, 'partially_reversible');
 ## Status
 
 **v0.1** — Validates against ADP spec v0.
+
+## License
+
+Apache-2.0 — see [`LICENSE`](LICENSE) for the full license text and [`NOTICE`](NOTICE) for attribution.
