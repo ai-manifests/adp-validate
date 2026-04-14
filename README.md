@@ -5,7 +5,7 @@ Validate [ADP](https://adp-manifest.dev) proposal objects and audit deliberation
 ## Install
 
 ```bash
-npm install -g adp-validate
+npm install -g @ai-manifests/adp-validate
 ```
 
 ## Usage
@@ -125,7 +125,7 @@ Beyond JSON Schema validation, adp-validate checks:
 ## Programmatic Use
 
 ```javascript
-import { validateProposal, validateDeliberation, auditTally } from 'adp-validate';
+import { validateProposal, validateDeliberation, auditTally } from '@ai-manifests/adp-validate';
 
 const result = validateProposal(proposal);
 // { valid: boolean, errors: string[], warnings: string[] }
