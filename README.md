@@ -1,5 +1,11 @@
 # adp-validate
 
+[![npm](https://img.shields.io/npm/v/@ai-manifests/adp-validate.svg?label=npm)](https://www.npmjs.com/package/@ai-manifests/adp-validate)
+[![Downloads](https://img.shields.io/npm/dm/@ai-manifests/adp-validate.svg)](https://www.npmjs.com/package/@ai-manifests/adp-validate)
+[![Node](https://img.shields.io/badge/node-20%2B-blue.svg)](https://nodejs.org/)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
+[![Spec](https://img.shields.io/badge/spec-adp--manifest.dev-informational)](https://adp-manifest.dev)
+
 Validate [ADP](https://adp-manifest.dev) proposal objects and audit deliberation traces.
 
 ## Install
